@@ -2,9 +2,9 @@ name: ShopPulse QA Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   playwright-tests:
@@ -57,7 +57,7 @@ jobs:
         working-directory: gatling
         run: |
           chmod +x mvnw
-          ./mvnw gatling:test
+          ./mvnw gatling:test -Dgatling.simulationClass=example.CartSimulation
 
       - name: Upload Gatling report
         if: always()
