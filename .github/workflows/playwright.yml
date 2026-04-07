@@ -57,7 +57,7 @@ jobs:
         working-directory: gatling
         run: |
           chmod +x mvnw
-          ./mvnw gatling:test -Dgatling.simulationClass=example.CartSimulation
+          ./mvnw gatling:test -Dgatling.simulationClass=CartSimulation
 
       - name: Upload Gatling report
         if: always()
