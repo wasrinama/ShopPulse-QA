@@ -1,33 +1,32 @@
-name: ShopPulse QA - Playwright Tests
+name: ShopPulse QA Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  test:
-    timeout-minutes: 60
+  playwright-tests:
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: playwright # 🔥 IMPORTANT FIX
+        working-directory: playwright
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
 
-      - name: Install Playwright Browsers
+      - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
@@ -39,3 +38,30 @@ jobs:
         with:
           name: playwright-report
           path: playwright/playwright-report/
+
+  gatling-tests:
+    runs-on: ubuntu-latest
+    needs: playwright-tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Run Gatling Load Test
+        working-directory: gatling
+        run: |
+          chmod +x mvnw
+          ./mvnw gatling:test
+
+      - name: Upload Gatling report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gatling-report
+          path: gatling/target/gatling
